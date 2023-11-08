@@ -11,15 +11,11 @@ export class Ca1Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // Define the DynamoDB table
-    const table = new dynamodb.Table(this, 'MovieReviewsTable', {
-      partitionKey: {
-        name: 'MovieId',
-        type: dynamodb.AttributeType.NUMBER,
-      },
-      tableName:"MovieReviews",
-      removalPolicy:cdk.RemovalPolicy.DESTROY,
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+  const movieReviewsTable = new dynamodb.Table(this, "MoviesTable", {
+    billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: "movieId", type: dynamodb.AttributeType.NUMBER },
+    removalPolicy: cdk.RemovalPolicy.DESTROY,
+    tableName: "Movies",
     });
     
     
@@ -29,13 +25,13 @@ export class Ca1Stack extends cdk.Stack {
         action: "batchWriteItem",
         parameters: {
           RequestItems: {
-            [table.tableName]: generateBatch(moviereviews),
+            [movieReviewsTable.tableName]: generateBatch(moviereviews),
           },
         },
         physicalResourceId: custom.PhysicalResourceId.of("moviesddbInitData"), //.of(Date.now().toString()),
       },
       policy: custom.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [table.tableArn],
+        resources: [movieReviewsTable.tableArn],
       }),
     });
   }
